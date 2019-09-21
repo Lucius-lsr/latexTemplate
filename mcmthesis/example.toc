@@ -1,0 +1,13 @@
+\contentsline {section}{\numberline {一、}问题重述}{3}{section.1}% 
+\contentsline {subsection}{\numberline {1\tmspace +\thinmuskip {.1667em}.\tmspace +\thinmuskip {.1667em}1}问题背景}{3}{subsection.1.1}% 
+\contentsline {subsection}{\numberline {1\tmspace +\thinmuskip {.1667em}.\tmspace +\thinmuskip {.1667em}2}提出问题}{3}{subsection.1.2}% 
+\contentsline {section}{\numberline {二、}问题分析}{3}{section.2}% 
+\contentsline {section}{\numberline {三、}假设与符号}{3}{section.3}% 
+\contentsline {section}{\numberline {四、}模型建立与求解}{3}{section.4}% 
+\contentsline {section}{\numberline {五、}模型的检验}{3}{section.5}% 
+\contentsline {section}{\numberline {六、}进一步讨论}{3}{section.6}% 
+\contentsline {section}{\numberline {七、}模型的优缺点}{3}{section.7}% 
+\contentsline {section}{参考文献}{4}{section*.2}% 
+\contentsline {section}{附录 \numberline {A}模板所用的宏包}{5}{附录.a.A}% 
+\contentsline {section}{附录 \numberline {B}排队算法--matlab 源程序}{5}{附录.a.B}% 
+\contentsline {section}{附录 \numberline {C}规划解决程序--lingo源代码}{6}{附录.a.C}% 

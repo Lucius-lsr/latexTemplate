@@ -1,0 +1,463 @@
+
+\documentclass{article}
+
+\usepackage[version=3]{mhchem} % Package for chemical equation typesetting
+\usepackage{siunitx} % Provides the \SI{}{} and \si{} command for typesetting SI units
+\usepackage{graphicx} % Required for the inclusion of images
+\usepackage{natbib} % Required to change bibliography style to APA
+\usepackage{amsmath} % Required for some math elements 
+\usepackage{listings} % Required for codes
+\usepackage{color}
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+\lstset{ %
+language={[x86masm]Assembler},                % the language of the code
+basicstyle=\footnotesize,           % the size of the fonts that are used for the code
+numbers=left,                   % where to put the line-numbers
+numberstyle=\tiny\color{gray},  % the style that is used for the line-numbers
+stepnumber=2,                   % the step between two line-numbers. If it's 1, each line 
+                                % will be numbered
+numbersep=5pt,                  % how far the line-numbers are from the code
+backgroundcolor=\color{white},      % choose the background color. You must add \usepackage{color}
+showspaces=false,               % show spaces adding particular underscores
+showstringspaces=false,         % underline spaces within strings
+showtabs=false,                 % show tabs within strings adding particular underscores
+frame=single,                   % adds a frame around the code
+rulecolor=\color{black},        % if not set, the frame-color may be changed on line-breaks within not-black text (e.g. commens (green here))
+tabsize=2,                      % sets default tabsize to 2 spaces
+captionpos=b,                   % sets the caption-position to bottom
+breaklines=true,                % sets automatic line breaking
+breakatwhitespace=false,        % sets if automatic breaks should only happen at whitespace
+title=\lstname,                 % show the filename of files included with \lstinputlisting;
+                                % also try caption instead of title
+keywordstyle=\color{blue},          % keyword style
+commentstyle=\color{dkgreen},       % comment style
+stringstyle=\color{mauve},         % string literal style
+escapeinside={\%*}{*)},            % if you want to add LaTeX within your code
+morekeywords={*,...}               % if you want to add more keywords to the set
+\setlength\parindent{0pt} % Removes all indentation from paragraphs
+}
+
+\renewcommand{\labelenumi}{\alph{enumi}.} % Make numbering in the enumerate environment by letter rather than number (e.g. section 6)
+
+%\usepackage{times} % Uncomment to use the Times New Roman font
+
+%----------------------------------------------------------------------------------------
+%	DOCUMENT INFORMATION
+%----------------------------------------------------------------------------------------
+
+\title{Report for Archlab \\ Pipelined Processor} % Title
+
+\author{Li Shengrui \\ \textsc{Lucius} \\2017012066} % Author name
+
+\date{\today} % Date for the report
+
+\begin{document}
+
+\maketitle % Insert the title, author and date
+
+
+%----------------------------------------------------------------------------------------
+%	SECTION 1
+%----------------------------------------------------------------------------------------
+\part{A}
+\section{Description}
+\subsection{sum.ys}
+\begin{lstlisting}
+    # from lucius 2017012066
+	.pos 0
+init:
+	irmovl Stack, %esp
+	irmovl Stack, %ebp
+	call Main
+	halt
+
+	.align 4
+list:
+ele1:
+	.long 0x00a
+	.long ele2
+ele2:
+	.long 0x0b0
+	.long ele3
+ele3:
+	.long 0xc00
+	.long 0
+
+Main:
+	pushl %ebp
+	rrmovl %esp,%ebp
+	irmovl ele1,%eax
+	pushl %eax
+	call sum_list
+	rrmovl %ebp, %esp
+	popl %ebp
+	ret
+
+sum_list:
+	pushl %ebp
+	rrmovl %esp, %ebp
+	irmovl $0, %eax
+	mrmovl 8(%ebp), %ecx
+	addl %eax, %ecx
+	je return
+loop:
+	mrmovl (%ecx), %edx
+	addl %edx, %eax
+	mrmovl 4(%ecx), %ecx
+	irmovl $0, %esi
+	addl %esi, %ecx
+	jne loop
+return:
+	rrmovl %ebp, %esp
+	popl %ebp
+	ret
+
+	.pos 0x500
+Stack:
+\end{lstlisting}
+
+First, establish the initialization. Secondly, establish the list structure with sizes of 4. And with these foundation, do step by step as the Original C code indicates. It includes a function called sum\_list, which contain a loop structure.
+
+\subsection{rsum.ys}
+\begin{lstlisting}
+    # from lucius 2017012066
+	.pos 0
+init:
+	irmovl Stack, %esp
+	irmovl Stack, %ebp
+	call Main
+	halt
+
+	.align 4
+ele1:
+	.long 0x00a
+	.long ele2
+ele2:
+	.long 0x0b0
+	.long ele3
+ele3:
+	.long 0xc00
+	.long 0
+
+Main:
+	pushl %ebp
+	rrmovl %esp, %ebp
+	irmovl ele1,%eax
+        pushl %eax
+        call rsum_list
+        rrmovl %ebp, %esp
+        popl %ebp
+        ret
+
+rsum_list:
+	pushl %ebp
+	rrmovl %esp, %ebp
+	irmovl $0, %eax
+	mrmovl 8(%ebp), %ecx
+	addl %eax, %ecx
+	je finish1
+
+	mrmovl (%ecx), %esi
+	mrmovl 4(%ecx),%eax
+	pushl %esi
+	pushl %eax
+	call rsum_list
+	popl %edi # not important
+	popl %esi
+	addl %esi, %eax	
+	jmp finish2:
+
+finish1:
+	irmovl $0, %eax
+finish2:
+	rrmovl %ebp, %esp
+        popl %ebp
+        ret
+
+	.pos 0x500
+Stack:
+ \end{lstlisting}
+Very similar to the first one, This ys document establish the initialization and list structure the same way.
+The difference is that this one doesn't have a loop structure. Instead, it contains a recursion structure in the middle.
+before call the recursed function, it will push an argument above the stack and an callee-saved value above. 
+
+\subsection{copy.ys}
+\begin{lstlisting}
+    # from lucius 2017012066
+	.pos 0
+init:
+	irmovl Stack, %esp
+	irmovl Stack, %ebp
+	call Main
+	halt
+
+	.align 4
+# Source block
+src:
+	.long 0x00a
+	.long 0x0b0
+	.long 0xc00
+
+# Desitination block
+dest:
+	.long 0x111
+	.long 0x222
+	.long 0x333
+
+Main:
+	pushl %ebp
+	rrmovl %esp, %ebp
+	irmovl src, %esi
+	pushl %esi
+	irmovl dest, %esi
+	pushl %esi
+	irmovl $3, %esi
+	pushl %esi
+	call copy_block
+	rrmovl %ebp, %esp
+        popl %ebp
+        ret
+
+copy_block:
+	pushl %ebp
+        rrmovl %esp, %ebp
+	mrmovl 16(%ebp), %edx
+	mrmovl 12(%ebp), %ebx
+	irmovl $0, %eax
+	mrmovl 8(%ebp), %esi
+	irmovl $4, %edi
+loop:
+	irmovl $0, %ecx	
+	subl %ecx, %esi
+	jle return
+	mrmovl (%edx), %ecx
+	addl %edi, %edx
+	rmmovl %ecx, (%ebx)
+	addl %edi, %ebx
+	xorl %ecx, %eax
+	irmovl $1, %ecx
+	subl %ecx, %esi
+	jmp loop
+
+return:
+	rrmovl %esp, %ebp
+	popl %ebp
+	ret
+
+	.pos 0x500
+Stack:
+\end{lstlisting}
+The third task is to put copies a block of words from one part of memory to another. To implement this, I move a word to a register and then move the register
+to the right position. Meanwhile, it also demand us to calculate the checksum of all the words copied. And this demand only require the xorl operation in every step. 
+
+
+\section{Difficulties}
+For the sum.ys part, the only difficulty is initialization. But I referred to the example in the textbook, and everything went well.
+
+And for the rsum.ys part, the difficulty is to use the callee-saved register to save $value$ in every recursion. Because $value$ is pushed above the argument $result$, I should pop twice to get $value$.
+
+At last, for the last part copy.ys. There is many arguments to use, so I should carefully choose my register so as not to use the same register simultaneously. 
+
+\section{What I Learned}
+ In this part, I learned the basic rules to write y86 instructions, including initialization, returning and choose the right position of stuck. 
+ And I also learned how to translate codes from C version to y86 version, especially in the process of calling a function. When calling a function, I should 
+ push the callee-saved value and the argument. It is more complex than C language. 
+%----------------------------------------------------------------------------------------
+%	SECTION 2
+%----------------------------------------------------------------------------------------
+\part{B}
+\section{Description}
+\subsection{IADDL}
+Description of iaddl is belowed.
+\begin{lstlisting}
+fetch:
+    icode:ifun<-M1[PC]
+    rA:rB<-M1[PC+1]
+    valC<-M4[PC+2]
+    valP<-PC+6	
+decode:
+    valB<-R[rB]
+execute:
+    valE<-valC+valB
+    set CC
+memory:
+
+write back:
+    R[rB]<-valE
+PC update:
+    PC<-valP	
+\end{lstlisting}
+This operation require a register, and a value C. PC is incremented by 6.
+And this instruction is composed of irmovel and addl, it's necessary to set the condition code.
+
+
+\subsection{LEAVEL}
+Description of leavel is belowed.
+\begin{lstlisting}
+fetch:
+    icode:ifun<-M1[PC]
+    valP<-PC+1
+decode:
+    valA<-R[%ebp]
+    valB<-R[%ebp]
+execute:
+    valE<-valB+4
+memory:
+    valM<-M4[valA]
+write back:
+    R[%esp]<-valE
+    R[%ebp]<-valM
+PC update:
+    PC<-valP
+\end{lstlisting}
+This operation is to move \%esp to the position of \%ebp +4 and to move \%ebp to the position it pointed at.
+And the operation doesn't need any other register and val C.  
+Notice that we need 2 values of R[\%ebp] when decoding, one is used to calculate the position incremented by 4, while the other
+is used to access memory.
+\subsection{Difficulties}
+For the SQE part, it is easy. I just check every step and add the two operation in it. As long as my instruction is correct and carefully check 
+every steps, it goes well.
+
+But for the PIPE part, things are little bit more difficult. The instrucion of the 6 steps is very similar, but I have to add more instrucions when taking
+Pipeline Register Control into consideration. In other words, I must stall the register and inject a bubble for LEAVEL(It is lucky that IADDL don't need to stall or inject bubble)
+Then I found that for LEAVEL, I can modify it the same way as IMRMOVL and IPOPL. Because they all need to read from the memory, the position to add stall and bubbles is the same. 
+\subsection{What I Learnt}
+In this part, I learnt two things. The first is how to write the description of the computations according to the demand. The Second is how to modify the register instruction.
+Because the original operation has been written in the file and they share some similarities, it is easy to add new operation since the exsisted ones indicates a lot.
+%----------------------------------------------------------------------------------------
+%	SECTION 3
+%----------------------------------------------------------------------------------------
+
+\part{C}
+\setcounter{section}{0}
+\section{Instrcution ADDSL}
+When we want to get the next nunber in an array, we have to let another register to be 4 and use addl. Obviously, it is troublesome. Therefore, I add an instruction named addsl. 
+It means add number of a step of an array, which is 4.
+
+e.g.
+\begin{lstlisting}
+# %ebp=100
+addsl %ebp, %esp #Here %esp is used to hold the position; it won't be modified.
+# %ebp=104
+\end{lstlisting}
+The specific description is belowed.
+\begin{lstlisting}
+fetch:
+	icode:ifun<-M1[PC]
+	rA:rB<-M1[PC+1]
+    valP<-PC+2
+decode:
+    valB<-R[rB]
+execute:
+    valE<-4+valB
+memory:
+
+write back:
+    R[rB]<-valE
+PC update:
+    PC<-valP	
+\end{lstlisting}
+So I modified the pipe-full.hcl. In addtion, I modified the isa.h, isa.c
+and yas-grammer.lex under misc.
+
+My modification is belowed.
+
+In isa.h:
+\begin{lstlisting}
+	/* Different instruction types */
+	typedef enum { I_HALT, I_NOP, I_RRMOVL, I_IRMOVL, I_RMMOVL, I_MRMOVL,
+			   I_ALU, I_JMP, I_CALL, I_RET, I_PUSHL, I_POPL,
+			   I_IADDL, I_LEAVE, I_POP2, I_ADDSL } itype_t;
+\end{lstlisting}
+
+In isa.c:
+\begin{lstlisting}
+	/*------------------------My change------------------------------*/
+	{"addsl",  HPACK(I_ADDSL, F_NONE), 2, R_ARG, 1, 1, R_ARG, 1, 0},
+	/*---------------------------------------------------------------*/
+
+	/*------------------------My change------------------------------*/
+	need_regids =
+	(hi0 == I_RRMOVL || hi0 == I_ALU || hi0 == I_PUSHL ||
+	 hi0 == I_POPL || hi0 == I_IRMOVL || hi0 == I_RMMOVL ||
+	 hi0 == I_MRMOVL || hi0 == I_IADDL || hi0==I_ADDSL);
+	 /*---------------------------------------------------------------*/
+
+	/*------------------------My change------------------------------*/
+    case I_ADDSL:
+	if (!ok1) {
+	    if (error_file)
+		fprintf(error_file,
+			"PC = 0x%x, Invalid instruction address\n", s->pc);
+	    return STAT_ADR;
+	}
+	if (!okc) {
+	    if (error_file)
+		fprintf(error_file,
+			"PC = 0x%x, Invalid instruction address",
+			s->pc);
+	    return STAT_INS;
+	}
+	if (!reg_valid(lo1)) {
+	    if (error_file)
+		fprintf(error_file,
+			"PC = 0x%x, Invalid register ID 0x%.1x\n",
+			s->pc, lo1);
+	    return STAT_INS;
+	}
+	argB = get_reg_val(s->r, hi1);
+	set_reg_val(s->r, hi1, argB+4);
+	s->pc = ftpc;
+	break;
+/*---------------------------------------------------------------*/
+\end{lstlisting}
+
+In yas-grammer.lex:
+\begin{lstlisting}
+	Instr         rrmovl|cmovle|cmovl|cmove|cmovne|cmovge|cmovg|rmmovl|mrmovl|irmovl|addl|subl|andl|xorl|jmp|jle|jl|je|jne|jge|jg|call|ret|pushl|popl|"."byte|"."word|"."long|"."pos|"."align|halt|nop|iaddl|leave|addsl
+\end{lstlisting}
+
+And I wrote a .ys document called test1.ys, which is:
+\begin{lstlisting}
+	# from lucius 2017012066
+	.pos 0
+init:
+	irmovl Stack, %esp
+	irmovl Stack, %ebp
+	call Main
+	halt
+
+Main:
+	pushl %ebp
+	rrmovl %esp,%ebp
+	irmovl 0x200, %eax
+	addsl %eax, %esp    # here %esp is used to hold the posotion
+	rrmovl %ebp, %esp
+	popl %ebp
+	ret
+
+.pos 0x500
+Stack:
+\end{lstlisting}
+
+The result is exactly what I expected:
+\begin{lstlisting}
+	Stopped in 12 steps at PC = 0x11.  Status 'HLT', CC Z=1 S=0 O=0
+	Changes to registers:
+	%eax:	0x00000000	0x00000204 # Here, %eax is incremented by 4!
+	%ebx:	0x00000000	0x00000100
+	%esp:	0x00000000	0x00000500
+	%ebp:	0x00000000	0x00000500
+	
+	Changes to memory:
+	0x04f8:	0x00000000	0x00000500
+	0x04fc:	0x00000000	0x00000011
+	
+\end{lstlisting}
+
+
+
+
+\end{document}

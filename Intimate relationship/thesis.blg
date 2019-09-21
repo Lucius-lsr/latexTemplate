@@ -1,0 +1,71 @@
+This is BibTeX, Version 0.99d (TeX Live 2019)
+Capacity: max_strings=100000, hash_size=100000, hash_prime=85009
+The top-level auxiliary file: thesis.aux
+The style file: apacite.bst
+Reallocated glb_str_ptr (elt_size=4) to 20 items from 10.
+Reallocated global_strs (elt_size=20001) to 20 items from 10.
+Reallocated glb_str_end (elt_size=4) to 20 items from 10.
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated wiz_functions (elt_size=4) to 6000 items from 3000.
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated wiz_functions (elt_size=4) to 9000 items from 6000.
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Database file #1: ref.bib
+Warning--entry type for ":lxj" isn't style-file defined
+--line 20 of file ref.bib
+Warning--entry type for ":lhs" isn't style-file defined
+--line 29 of file ref.bib
+Warning--entry type for ":yyq" isn't style-file defined
+--line 38 of file ref.bib
+Warning--entry type for ":jxm" isn't style-file defined
+--line 47 of file ref.bib
+Warning--entry type for ":zxt" isn't style-file defined
+--line 56 of file ref.bib
+Warning--entry type for ":wyl" isn't style-file defined
+--line 66 of file ref.bib
+Warning--entry type for ":ylp" isn't style-file defined
+--line 75 of file ref.bib
+apacite.bst [2013/07/21 v6.03 APA bibliography style]
+You've used 7 entries,
+            6951 wiz_defined-function locations,
+            1291 strings with 12516 characters,
+and the built_in function-call counts, 12290 in all, are:
+= -- 1913
+> -- 0
+< -- 456
++ -- 435
+- -- 0
+* -- 688
+:= -- 1834
+add.period$ -- 21
+call.type$ -- 7
+change.case$ -- 112
+chr.to.int$ -- 0
+cite$ -- 14
+duplicate$ -- 154
+empty$ -- 561
+format.name$ -- 0
+if$ -- 2663
+int.to.chr$ -- 0
+int.to.str$ -- 21
+missing$ -- 0
+newline$ -- 108
+num.names$ -- 0
+pop$ -- 147
+preamble$ -- 1
+purify$ -- 21
+quote$ -- 0
+skip$ -- 1212
+stack$ -- 0
+substring$ -- 449
+swap$ -- 77
+text.length$ -- 14
+text.prefix$ -- 0
+top$ -- 1
+type$ -- 1232
+warning$ -- 0
+while$ -- 14
+width$ -- 0
+write$ -- 135
+(There were 7 warnings)
